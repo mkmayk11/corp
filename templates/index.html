@@ -10,7 +10,7 @@
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
     <!-- Áudio do som de dinheiro -->
-    <audio id="somDinheiro" src="https://www.myinstants.com/media/sounds/cash-register-kaching-sound-effect.mp3" preload="auto"></audio>
+    <audio id="somDinheiro" src="https://actions.google.com/sounds/v1/cash/register_quirk.ogg" preload="auto"></audio>
 
     <!-- HEADER / TOPO -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 shadow-md">
@@ -19,6 +19,9 @@
                 STORY corp S/A - Gestão e Caixa
             </h1>
             <div id="painelHeaderAcoes" class="hidden flex items-center gap-3">
+                <button onclick="alternarSom()" id="btnAudioToggle" class="text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full transition-all">
+                    🔊 Som: Ativado
+                </button>
                 <span id="statusAutoRefresh" class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full animate-pulse">
                     AUTO REFRESH: LIGADO (1s)
                 </span>
@@ -212,6 +215,7 @@
         let graficoVendasInstance = null;
         let graficoStatusInstance = null;
         let intervaloAutoRefresh = null;
+        let somAtivado = true;
 
         window.addEventListener('DOMContentLoaded', () => {
             if (localStorage.getItem('story_logado') === 'true') {
@@ -222,6 +226,21 @@
                 }
             }
         });
+
+        function alternarSom() {
+            somAtivado = !somAtivado;
+            const btn = document.getElementById('btnAudioToggle');
+            if (somAtivado) {
+                btn.className = "text-xs bg-amber-500/10 hover:bg-amber-500/20 text-amber-400 border border-amber-500/20 px-3 py-1 rounded-full transition-all";
+                btn.innerText = "🔊 Som: Ativado";
+                // Toca um teste leve ao ativar
+                const audio = document.getElementById('somDinheiro');
+                if (audio) { audio.currentTime = 0; audio.play().catch(e => {}); }
+            } else {
+                btn.className = "text-xs bg-slate-800 hover:bg-slate-700 text-slate-400 border border-slate-700 px-3 py-1 rounded-full transition-all";
+                btn.innerText = "🔇 Som: Desativado";
+            }
+        }
 
         function alternarAba(aba) {
             const btnLogin = document.getElementById('btnTabLogin');
@@ -338,10 +357,11 @@
 
                     // --- LÓGICA DO SOM DE DINHEIRO ---
                     let faturamentoAnterior = parseFloat(localStorage.getItem('ultimoFaturamento')) || data.faturamento_total;
-                    if (data.faturamento_total > faturamentoAnterior) {
+                    if (data.faturamento_total > faturamentoAnterior && somAtivado) {
                         const audioDinheiro = document.getElementById('somDinheiro');
                         if (audioDinheiro) {
-                            audioDinheiro.play().catch(e => console.log("Bloqueio de autoplay:", e));
+                            audioDinheiro.currentTime = 0;
+                            audioDinheiro.play().catch(e => console.log("Erro ao reproduzir áudio:", e));
                         }
                     }
                     localStorage.setItem('ultimoFaturamento', data.faturamento_total);
