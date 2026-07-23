@@ -154,7 +154,7 @@
                 </div>
             </div>
 
-            <!-- Cards de Métricas -->
+            <!-- Cards de Métricas Principais -->
             <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                     <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Faturamento Bruto</p>
@@ -167,6 +167,19 @@
                 <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
                     <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Lucro Líquido</p>
                     <h3 id="cardLucro" class="text-3xl font-extrabold text-cyan-400 mt-2">R$ 0,00</h3>
+                </div>
+            </div>
+
+            <!-- Card Adicional: Quantidade Total de Pedidos -->
+            <div class="bg-gradient-to-r from-slate-900 via-slate-900 to-slate-950 border border-slate-800 p-6 rounded-2xl shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Volume Total de Operações</p>
+                    <h3 id="cardQtdPedidos" class="text-2xl font-bold text-indigo-400 mt-1">0 Pedidos Registrados</h3>
+                </div>
+                <div class="bg-indigo-500/10 border border-indigo-500/20 p-3 rounded-xl text-indigo-400">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                    </svg>
                 </div>
             </div>
 
@@ -187,23 +200,19 @@
                 </div>
             </div>
 
-            <!-- Tabela de Pedidos -->
+            <!-- Nova Tela de Pedidos Realizados (Com Efeitos e Cards Modernos) -->
             <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
-                <h3 class="text-lg font-semibold text-slate-200">Tela de Pedidos Realizados (Geral)</h3>
-                <div class="overflow-x-auto border border-slate-800 rounded-xl max-h-72">
-                    <table class="w-full text-left border-collapse">
-                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase sticky top-0">
-                            <tr>
-                                <th class="p-3">ID</th>
-                                <th class="p-3">Produto</th>
-                                <th class="p-3">Tamanho</th>
-                                <th class="p-3">Status</th>
-                                <th class="p-3">Preço Venda</th>
-                                <th class="p-3">Custo</th>
-                            </tr>
-                        </thead>
-                        <tbody id="tabelaPedidosCorpo" class="divide-y divide-slate-800 text-sm"></tbody>
-                    </table>
+                <div class="flex justify-between items-center border-b border-slate-800 pb-3">
+                    <h3 class="text-lg font-semibold text-slate-200 flex items-center gap-2">
+                        <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                        Feed Dinâmico de Pedidos Realizados
+                    </h3>
+                    <span class="text-xs bg-slate-800 text-slate-400 px-3 py-1 rounded-full border border-slate-700/50">Atualização em tempo real</span>
+                </div>
+                
+                <!-- Grid de Cards Estilizados -->
+                <div id="gridPedidosCards" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 max-h-[500px] overflow-y-auto pr-2">
+                    <!-- Preenchido dinamicamente via JS -->
                 </div>
             </div>
 
@@ -369,33 +378,44 @@
                     document.getElementById('cardFaturamento').innerText = `R$ ${data.faturamento_total.toFixed(2).replace('.', ',')}`;
                     document.getElementById('cardCusto').innerText = `R$ ${data.custo_total.toFixed(2).replace('.', ',')}`;
                     document.getElementById('cardLucro').innerText = `R$ ${data.lucro_liquido.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('cardQtdPedidos').innerText = `${data.pedidos.length} Pedido(s) Registrado(s)`;
 
-                    const tbody = document.getElementById('tabelaPedidosCorpo');
-                    tbody.innerHTML = '';
+                    const gridCards = document.getElementById('gridPedidosCards');
+                    gridCards.innerHTML = '';
                     
                     if (data.pedidos.length === 0) {
-                        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>`;
+                        gridCards.innerHTML = `<div class="col-span-full p-8 text-center text-slate-500 bg-slate-950/40 rounded-xl border border-slate-800">Nenhum pedido encontrado no sistema.</div>`;
                     } else {
                         data.pedidos.forEach(p => {
                             let statusBadge = '';
                             let st = Number(p.status);
-                            if (st === 1) statusBadge = '<span class="bg-amber-500/10 text-amber-400 px-2 py-1 rounded text-xs">Processando seu pagamento</span>';
-                            else if (st === 2) statusBadge = '<span class="bg-blue-500/10 text-blue-400 px-2 py-1 rounded text-xs">Pagamento feito</span>';
-                            else if (st === 3) statusBadge = '<span class="bg-purple-500/10 text-purple-400 px-2 py-1 rounded text-xs">Pedido em preparação</span>';
-                            else if (st === 4) statusBadge = '<span class="bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded text-xs">Pedido a caminho</span>';
-                            else if (st === 5) statusBadge = '<span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs font-bold">Pedido entregue</span>';
-                            else if (st === 6 || st === 0) statusBadge = '<span class="bg-rose-500/10 text-rose-400 px-2 py-1 rounded text-xs">Compra cancelada</span>';
-                            else statusBadge = `<span class="bg-slate-800 text-slate-300 px-2 py-1 rounded text-xs">Status ${p.status}</span>`;
+                            if (st === 1) statusBadge = '<span class="bg-amber-500/10 text-amber-400 border border-amber-500/20 px-2.5 py-1 rounded-full text-xs">Processando pagamento</span>';
+                            else if (st === 2) statusBadge = '<span class="bg-blue-500/10 text-blue-400 border border-blue-500/20 px-2.5 py-1 rounded-full text-xs">Pagamento feito</span>';
+                            else if (st === 3) statusBadge = '<span class="bg-purple-500/10 text-purple-400 border border-purple-500/20 px-2.5 py-1 rounded-full text-xs">Em preparação</span>';
+                            else if (st === 4) statusBadge = '<span class="bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 px-2.5 py-1 rounded-full text-xs">A caminho</span>';
+                            else if (st === 5) statusBadge = '<span class="bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-2.5 py-1 rounded-full text-xs font-bold">Entregue com sucesso</span>';
+                            else if (st === 6 || st === 0) statusBadge = '<span class="bg-rose-500/10 text-rose-400 border border-rose-500/20 px-2.5 py-1 rounded-full text-xs">Cancelado</span>';
+                            else statusBadge = `<span class="bg-slate-800 text-slate-300 px-2.5 py-1 rounded-full text-xs">Status ${p.status}</span>`;
 
-                            tbody.innerHTML += `
-                                <tr class="hover:bg-slate-950/50 transition-colors">
-                                    <td class="p-3 text-slate-300">#${p.id}</td>
-                                    <td class="p-3 text-slate-300 font-medium">${p.produto_nome}</td>
-                                    <td class="p-3 text-slate-300">${p.tamanho || '-'}</td>
-                                    <td class="p-3">${statusBadge}</td>
-                                    <td class="p-3 text-emerald-400 font-semibold">R$ ${Number(p.valor).toFixed(2).replace('.', ',')}</td>
-                                    <td class="p-3 text-rose-400 font-semibold">R$ ${Number(p.custo).toFixed(2).replace('.', ',')}</td>
-                                </tr>
+                            gridCards.innerHTML += `
+                                <div class="bg-slate-950/60 border border-slate-800/80 hover:border-emerald-500/40 p-4 rounded-xl shadow-lg transition-all duration-300 hover:scale-[1.01] flex flex-col justify-between space-y-3 group">
+                                    <div class="flex justify-between items-start">
+                                        <span class="text-xs font-mono text-slate-400 bg-slate-900 px-2 py-0.5 rounded border border-slate-800">#${p.id}</span>
+                                        <div>${statusBadge}</div>
+                                    </div>
+                                    <div>
+                                        <h4 class="font-semibold text-slate-100 group-hover:text-emerald-400 transition-colors">${p.produto_nome}</h4>
+                                        <p class="text-xs text-slate-400 mt-0.5">Tamanho: <span class="text-slate-200 font-medium">${p.tamanho || 'Padrão'}</span></p>
+                                    </div>
+                                    <div class="pt-2 border-t border-slate-800/60 flex justify-between items-center text-xs">
+                                        <div>
+                                            <span class="text-slate-500">Venda:</span> <span class="text-emerald-400 font-bold">R$ ${Number(p.valor).toFixed(2).replace('.', ',')}</span>
+                                        </div>
+                                        <div>
+                                            <span class="text-slate-500">Custo:</span> <span class="text-rose-400 font-semibold">R$ ${Number(p.custo).toFixed(2).replace('.', ',')}</span>
+                                        </div>
+                                    </div>
+                                </div>
                             `;
                         });
                     }
@@ -426,9 +446,7 @@
                                 ? '<span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs font-bold">Aprovado</span>' 
                                 : '<span class="bg-amber-500/10 text-amber-400 px-2 py-1 rounded text-xs animate-pulse">Pendente</span>';
                             
-                            let btnAprovText = u.aprovado ? 'Bloquear' : 'Aprovado';
                             let btnAprovClass = u.aprovado ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white';
-
                             let adminBadge = u.is_admin ? '<span class="text-cyan-400 font-bold">Sim (Admin)</span>' : '<span class="text-slate-400">Não</span>';
 
                             tbody.innerHTML += `
