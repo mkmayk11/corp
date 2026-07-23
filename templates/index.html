@@ -1,0 +1,541 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>STORY corp S/A - Painel de Controle</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
+
+    <!-- HEADER / TOPO -->
+    <header class="bg-slate-900 border-b border-slate-800 p-4 shadow-md">
+        <div class="container mx-auto flex justify-between items-center">
+            <h1 class="text-xl font-bold bg-gradient-to-r from-emerald-400 to-cyan-500 bg-clip-text text-transparent">
+                STORY corp S/A - Gestão e Caixa
+            </h1>
+            <div id="painelHeaderAcoes" class="hidden flex items-center gap-3">
+                <span id="statusAutoRefresh" class="text-xs bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 px-3 py-1 rounded-full animate-pulse">
+                    AUTO REFRESH: LIGADO (1s)
+                </span>
+                <button onclick="sairSistema()" class="text-xs bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 px-3 py-1 rounded-full transition-all">
+                    Sair / Desconectar
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="container mx-auto p-6 flex-grow flex flex-col justify-center items-center">
+        
+        <!-- ================= TELA DE LOGIN / CADASTRO ================= -->
+        <div id="secaoAutenticacao" class="w-full max-w-lg bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
+            
+            <div class="flex border-b border-slate-800 pb-4">
+                <button onclick="alternarAba('login')" id="btnTabLogin" class="flex-1 pb-2 font-semibold text-emerald-400 border-b-2 border-emerald-400 text-center transition-all">Fazer Login</button>
+                <button onclick="alternarAba('cadastro')" id="btnTabCadastro" class="flex-1 pb-2 font-semibold text-slate-400 text-center transition-all">Criar Cadastro Completo</button>
+            </div>
+
+            <!-- Formulário de Login -->
+            <div id="formLoginDiv" class="space-y-4">
+                <h2 class="text-lg font-semibold text-slate-200">Acesse sua Conta</h2>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Usuário</label>
+                    <input type="text" id="loginUsuario" placeholder="ex: admin" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Senha</label>
+                    <input type="password" id="loginSenha" placeholder="••••••••" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-3 text-slate-100 focus:outline-none focus:border-emerald-500">
+                </div>
+                <button onclick="fazerLogin()" class="w-full bg-emerald-600 hover:bg-emerald-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-emerald-900/40">
+                    Entrar no Sistema
+                </button>
+            </div>
+
+            <!-- Formulário de Cadastro Detalhado -->
+            <div id="formCadastroDiv" class="space-y-4 hidden max-h-[60vh] overflow-y-auto pr-2">
+                <h2 class="text-lg font-semibold text-slate-200">Cadastro de Novo Usuário</h2>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Nome de Usuário</label>
+                        <input type="text" id="cadUser" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Senha</label>
+                        <input type="password" id="cadSenha" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Nome Completo</label>
+                    <input type="text" id="cadNome" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                </div>
+                <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">E-mail</label>
+                        <input type="email" id="cadEmail" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Telefone / WhatsApp</label>
+                        <input type="text" id="cadTelefone" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">CPF</label>
+                    <input type="text" id="cadCpf" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                </div>
+                <div>
+                    <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Endereço Completo</label>
+                    <input type="text" id="cadEndereco" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                </div>
+                <div class="grid grid-cols-3 gap-2">
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Cidade</label>
+                        <input type="text" id="cadCidade" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">Estado</label>
+                        <input type="text" id="cadEstado" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                    <div>
+                        <label class="block text-xs uppercase tracking-wider text-slate-400 mb-1">CEP</label>
+                        <input type="text" id="cadCep" class="w-full bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-sm text-slate-100">
+                    </div>
+                </div>
+                <button onclick="fazerCadastro()" class="w-full bg-cyan-600 hover:bg-cyan-500 text-white font-semibold py-3 rounded-xl transition-all shadow-lg shadow-cyan-900/40 mt-2">
+                    Concluir Cadastro (Enviar para Aprovação)
+                </button>
+            </div>
+
+            <div id="mensagemAlerta" class="text-sm text-center text-rose-400"></div>
+        </div>
+
+        <!-- ================= BOTÃO DE CONEXÃO E GRÁFICOS (PÓS-LOGIN) ================= -->
+        <div id="secaoConexaoBotao" class="hidden w-full max-w-md bg-slate-900 border border-slate-800 p-8 rounded-2xl shadow-xl text-center space-y-4">
+            <h2 class="text-xl font-semibold text-slate-200">Painel Liberado</h2>
+            <p class="text-sm text-slate-400">Clique abaixo para carregar os dados financeiros e o caixa da STORY corp S/A.</p>
+            <button onclick="carregarPainelCompleto()" class="inline-flex items-center gap-3 bg-emerald-600 hover:bg-emerald-500 text-white font-semibold px-8 py-4 rounded-2xl transition-all shadow-xl shadow-emerald-900/40 text-base">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10" />
+                </svg>
+                Conectar e Ver Gráficos
+            </button>
+        </div>
+
+        <!-- ================= PAINEL DE CONTROLE / GRÁFICOS / GESTÃO ================= -->
+        <div id="painelControle" class="hidden w-full space-y-6">
+            
+            <!-- Painel Administrativo de Usuários (Aparece apenas para o Admin) -->
+            <div id="secaoAdminUsuarios" class="hidden bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="text-lg font-semibold text-emerald-400">Painel do Administrador: Gestão de Cadastros Pendentes</h3>
+                    <span class="text-xs bg-slate-800 text-slate-300 px-3 py-1 rounded-full">Controle Total de Acessos</span>
+                </div>
+                <div class="overflow-x-auto border border-slate-800 rounded-xl max-h-64">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase sticky top-0">
+                            <tr>
+                                <th class="p-3">Usuário</th>
+                                <th class="p-3">Nome / Contato</th>
+                                <th class="p-3">Status Conta</th>
+                                <th class="p-3">Cargo Admin</th>
+                                <th class="p-3 text-center">Ações</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaAdminUsuariosCorpo" class="divide-y divide-slate-800 text-sm">
+                            <!-- Preenchido via JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Cards de Métricas -->
+            <div class="grid grid-cols-1 sm:grid-cols-3 gap-6">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Faturamento Bruto</p>
+                    <h3 id="cardFaturamento" class="text-3xl font-extrabold text-emerald-400 mt-2">R$ 0,00</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Custo Total Produtos</p>
+                    <h3 id="cardCusto" class="text-3xl font-extrabold text-rose-400 mt-2">R$ 0,00</h3>
+                </div>
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl">
+                    <p class="text-xs font-medium uppercase tracking-wider text-slate-400">Lucro Líquido</p>
+                    <h3 id="cardLucro" class="text-3xl font-extrabold text-cyan-400 mt-2">R$ 0,00</h3>
+                </div>
+            </div>
+
+            <!-- Gráficos -->
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                    <h3 class="text-lg font-semibold text-slate-200">Tela de Vendas (Faturamento por Produto)</h3>
+                    <div class="w-full h-72 flex justify-center items-center">
+                        <canvas id="graficoVendas"></canvas>
+                    </div>
+                </div>
+
+                <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                    <h3 class="text-lg font-semibold text-slate-200">Resumo de Pedidos por Status</h3>
+                    <div class="w-full h-72 flex justify-center items-center">
+                        <canvas id="graficoStatus"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabela de Pedidos -->
+            <div class="bg-slate-900 border border-slate-800 p-6 rounded-2xl shadow-xl space-y-4">
+                <h3 class="text-lg font-semibold text-slate-200">Tela de Pedidos Realizados (Geral)</h3>
+                <div class="overflow-x-auto border border-slate-800 rounded-xl max-h-72">
+                    <table class="w-full text-left border-collapse">
+                        <thead class="bg-slate-950 text-slate-400 text-xs uppercase sticky top-0">
+                            <tr>
+                                <th class="p-3">ID</th>
+                                <th class="p-3">Produto</th>
+                                <th class="p-3">Tamanho</th>
+                                <th class="p-3">Status</th>
+                                <th class="p-3">Preço Venda</th>
+                                <th class="p-3">Custo</th>
+                            </tr>
+                        </thead>
+                        <tbody id="tabelaPedidosCorpo" class="divide-y divide-slate-800 text-sm"></tbody>
+                    </table>
+                </div>
+            </div>
+
+        </div>
+
+    </main>
+
+    <script>
+        let graficoVendasInstance = null;
+        let graficoStatusInstance = null;
+        let intervaloAutoRefresh = null;
+
+        window.addEventListener('DOMContentLoaded', () => {
+            if (localStorage.getItem('story_logado') === 'true') {
+                document.getElementById('secaoAutenticacao').classList.add('hidden');
+                document.getElementById('secaoConexaoBotao').classList.remove('hidden');
+                if (localStorage.getItem('story_conectado') === 'true') {
+                    carregarPainelCompleto();
+                }
+            }
+        });
+
+        function alternarAba(aba) {
+            const btnLogin = document.getElementById('btnTabLogin');
+            const btnCad = document.getElementById('btnTabCadastro');
+            const formLogin = document.getElementById('formLoginDiv');
+            const formCad = document.getElementById('formCadastroDiv');
+            document.getElementById('mensagemAlerta').innerText = '';
+
+            if (aba === 'login') {
+                btnLogin.className = "flex-1 pb-2 font-semibold text-emerald-400 border-b-2 border-emerald-400 text-center transition-all";
+                btnCad.className = "flex-1 pb-2 font-semibold text-slate-400 text-center transition-all";
+                formLogin.classList.remove('hidden');
+                formCad.classList.add('hidden');
+            } else {
+                btnCad.className = "flex-1 pb-2 font-semibold text-cyan-400 border-b-2 border-cyan-400 text-center transition-all";
+                btnLogin.className = "flex-1 pb-2 font-semibold text-slate-400 text-center transition-all";
+                formCad.classList.remove('hidden');
+                formLogin.classList.add('hidden');
+            }
+        }
+
+        async function fazerLogin() {
+            const usuario = document.getElementById('loginUsuario').value.trim();
+            const senha = document.getElementById('loginSenha').value.trim();
+            const alerta = document.getElementById('mensagemAlerta');
+
+            if (!usuario || !senha) {
+                alerta.innerText = 'Preencha usuário e senha.';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ usuario, senha })
+                });
+                const data = await res.json();
+
+                if (data.sucesso) {
+                    localStorage.setItem('story_logado', 'true');
+                    document.getElementById('secaoAutenticacao').classList.add('hidden');
+                    document.getElementById('secaoConexaoBotao').classList.remove('hidden');
+                } else {
+                    alerta.innerText = data.erro;
+                }
+            } catch (err) {
+                alerta.innerText = 'Erro de conexão com o servidor.';
+            }
+        }
+
+        async function fazerCadastro() {
+            const payload = {
+                username: document.getElementById('cadUser').value.trim(),
+                senha: document.getElementById('cadSenha').value.trim(),
+                nome_completo: document.getElementById('cadNome').value.trim(),
+                email: document.getElementById('cadEmail').value.trim(),
+                telefone: document.getElementById('cadTelefone').value.trim(),
+                cpf: document.getElementById('cadCpf').value.trim(),
+                endereco: document.getElementById('cadEndereco').value.trim(),
+                cidade: document.getElementById('cadCidade').value.trim(),
+                estado: document.getElementById('cadEstado').value.trim(),
+                cep: document.getElementById('cadCep').value.trim()
+            };
+            const alerta = document.getElementById('mensagemAlerta');
+
+            if (!payload.username || !payload.senha) {
+                alerta.innerText = 'Preencha pelo menos usuário e senha.';
+                return;
+            }
+
+            try {
+                const res = await fetch('/api/cadastrar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                const data = await res.json();
+
+                if (data.sucesso) {
+                    alert(data.mensagem);
+                    alternarAba('login');
+                } else {
+                    alerta.innerText = data.erro;
+                }
+            } catch (err) {
+                alerta.innerText = 'Erro ao enviar cadastro.';
+            }
+        }
+
+        async function carregarPainelCompleto() {
+            try {
+                const res = await fetch('/api/conectar', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' }
+                });
+                const data = await res.json();
+
+                if (data.sucesso) {
+                    localStorage.setItem('story_conectado', 'true');
+
+                    document.getElementById('secaoConexaoBotao').classList.add('hidden');
+                    document.getElementById('painelControle').classList.remove('hidden');
+                    document.getElementById('painelHeaderAcoes').classList.remove('hidden');
+
+                    if (data.is_admin_mestre) {
+                        document.getElementById('secaoAdminUsuarios').classList.remove('hidden');
+                        carregarTabelaAdminUsuarios();
+                    }
+
+                    if (!intervaloAutoRefresh) {
+                        intervaloAutoRefresh = setInterval(carregarPainelCompleto, 1000);
+                    }
+
+                    document.getElementById('cardFaturamento').innerText = `R$ ${data.faturamento_total.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('cardCusto').innerText = `R$ ${data.custo_total.toFixed(2).replace('.', ',')}`;
+                    document.getElementById('cardLucro').innerText = `R$ ${data.lucro_liquido.toFixed(2).replace('.', ',')}`;
+
+                    const tbody = document.getElementById('tabelaPedidosCorpo');
+                    tbody.innerHTML = '';
+                    
+                    if (data.pedidos.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="6" class="p-4 text-center text-slate-500">Nenhum pedido encontrado.</td></tr>`;
+                    } else {
+                        data.pedidos.forEach(p => {
+                            let statusBadge = '';
+                            let st = Number(p.status);
+                            if (st === 1) statusBadge = '<span class="bg-amber-500/10 text-amber-400 px-2 py-1 rounded text-xs">Processando seu pagamento</span>';
+                            else if (st === 2) statusBadge = '<span class="bg-blue-500/10 text-blue-400 px-2 py-1 rounded text-xs">Pagamento feito</span>';
+                            else if (st === 3) statusBadge = '<span class="bg-purple-500/10 text-purple-400 px-2 py-1 rounded text-xs">Pedido em preparação</span>';
+                            else if (st === 4) statusBadge = '<span class="bg-cyan-500/10 text-cyan-400 px-2 py-1 rounded text-xs">Pedido a caminho</span>';
+                            else if (st === 5) statusBadge = '<span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs font-bold">Pedido entregue</span>';
+                            else if (st === 6 || st === 0) statusBadge = '<span class="bg-rose-500/10 text-rose-400 px-2 py-1 rounded text-xs">Compra cancelada</span>';
+                            else statusBadge = `<span class="bg-slate-800 text-slate-300 px-2 py-1 rounded text-xs">Status ${p.status}</span>`;
+
+                            tbody.innerHTML += `
+                                <tr class="hover:bg-slate-950/50 transition-colors">
+                                    <td class="p-3 text-slate-300">#${p.id}</td>
+                                    <td class="p-3 text-slate-300 font-medium">${p.produto_nome}</td>
+                                    <td class="p-3 text-slate-300">${p.tamanho || '-'}</td>
+                                    <td class="p-3">${statusBadge}</td>
+                                    <td class="p-3 text-emerald-400 font-semibold">R$ ${Number(p.valor).toFixed(2).replace('.', ',')}</td>
+                                    <td class="p-3 text-rose-400 font-semibold">R$ ${Number(p.custo).toFixed(2).replace('.', ',')}</td>
+                                </tr>
+                            `;
+                        });
+                    }
+
+                    renderizarGraficoVendas(data.pedidos);
+                    renderizarGraficoStatus(data.status_counts);
+
+                } else {
+                    alert('Erro: ' + data.erro);
+                }
+            } catch (err) {
+                console.error('Erro no auto-refresh');
+            }
+        }
+
+        async function carregarTabelaAdminUsuarios() {
+            try {
+                const res = await fetch('/api/admin/usuarios');
+                const data = await res.json();
+                if (data.sucesso) {
+                    const tbody = document.getElementById('tabelaAdminUsuariosCorpo');
+                    tbody.innerHTML = '';
+                    if (data.usuarios.length === 0) {
+                        tbody.innerHTML = `<tr><td colspan="5" class="p-4 text-center text-slate-500">Nenhum usuário cadastrado.</td></tr>`;
+                    } else {
+                        data.usuarios.forEach(u => {
+                            let statusAprov = u.aprovado 
+                                ? '<span class="bg-emerald-500/10 text-emerald-400 px-2 py-1 rounded text-xs font-bold">Aprovado</span>' 
+                                : '<span class="bg-amber-500/10 text-amber-400 px-2 py-1 rounded text-xs animate-pulse">Pendente</span>';
+                            
+                            let btnAprovText = u.aprovado ? 'Bloquear' : 'Aprovado';
+                            let btnAprovClass = u.aprovado ? 'bg-rose-600 hover:bg-rose-500 text-white' : 'bg-emerald-600 hover:bg-emerald-500 text-white';
+
+                            let adminBadge = u.is_admin ? '<span class="text-cyan-400 font-bold">Sim (Admin)</span>' : '<span class="text-slate-400">Não</span>';
+
+                            tbody.innerHTML += `
+                                <tr class="hover:bg-slate-950/50">
+                                    <td class="p-3 font-semibold text-slate-200">@${u.username}</td>
+                                    <td class="p-3 text-xs text-slate-300">${u.nome_completo || '-'}<br><span class="text-slate-500">${u.email || ''}</span></td>
+                                    <td class="p-3">${statusAprov}</td>
+                                    <td class="p-3 text-xs">${adminBadge}</td>
+                                    <td class="p-3 text-center space-x-2">
+                                        <button onclick="mudarAprovacao(${u.id}, ${!u.aprovado})" class="px-3 py-1 rounded text-xs font-semibold ${btnAprovClass}">${u.aprovado ? 'Desaprovar' : 'Aprovar'}</button>
+                                        <button onclick="mudarAdmin(${u.id}, ${!u.is_admin})" class="px-3 py-1 rounded text-xs font-semibold bg-slate-800 hover:bg-slate-700 text-slate-200">${u.is_admin ? 'Remover Admin' : 'Tornar Admin'}</button>
+                                    </td>
+                                </tr>
+                            `;
+                        });
+                    }
+                }
+            } catch (err) {
+                console.error('Erro ao carregar usuários admin');
+            }
+        }
+
+        async function mudarAprovacao(id, aprovar) {
+            await fetch('/api/admin/aprovar', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, aprovar })
+            });
+            carregarTabelaAdminUsuarios();
+        }
+
+        async function mudarAdmin(id, is_admin) {
+            const res = await fetch('/api/admin/toggle_admin', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id, is_admin })
+            });
+            const data = await res.json();
+            if (!data.sucesso) alert(data.erro);
+            carregarTabelaAdminUsuarios();
+        }
+
+        async function sairSistema() {
+            await fetch('/api/logout', { method: 'POST' });
+            localStorage.removeItem('story_logado');
+            localStorage.removeItem('story_conectado');
+            location.reload();
+        }
+
+        function renderizarGraficoVendas(pedidos) {
+            const ctx = document.getElementById('graficoVendas').getContext('2d');
+            const resumo = {};
+            pedidos.forEach(p => {
+                if (Number(p.status) >= 2 && Number(p.status) !== 6) {
+                    resumo[p.produto_nome] = (resumo[p.produto_nome] || 0) + Number(p.valor);
+                }
+            });
+
+            const labels = Object.keys(resumo);
+            const valores = Object.values(resumo);
+
+            if (graficoVendasInstance) {
+                graficoVendasInstance.data.labels = labels.length > 0 ? labels : ['Sem Vendas'];
+                graficoVendasInstance.data.datasets[0].data = valores.length > 0 ? valores : [0];
+                graficoVendasInstance.update('none');
+            } else {
+                graficoVendasInstance = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels.length > 0 ? labels : ['Sem Vendas'],
+                        datasets: [{
+                            label: 'Faturamento (R$)',
+                            data: valores.length > 0 ? valores : [0],
+                            backgroundColor: '#10b981',
+                            borderRadius: 8
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: { legend: { display: false } }
+                    }
+                });
+            }
+        }
+
+        function renderizarGraficoStatus(statusCounts) {
+            const ctx = document.getElementById('graficoStatus').getContext('2d');
+            
+            const labels = [
+                'Processando seu pagamento', 
+                'Pagamento feito', 
+                'Pedido em preparação', 
+                'Pedido a caminho', 
+                'Pedido entregue', 
+                'Compra cancelada'
+            ];
+            
+            const valores = [
+                statusCounts[1] || 0,
+                statusCounts[2] || 0,
+                statusCounts[3] || 0,
+                statusCounts[4] || 0,
+                statusCounts[5] || 0,
+                statusCounts[6] || 0
+            ];
+
+            const cores = [
+                '#f59e0b', '#3b82f6', '#8b5cf6', '#06b6d4', '#10b981', '#ef4444'
+            ];
+
+            if (graficoStatusInstance) {
+                graficoStatusInstance.data.labels = labels;
+                graficoStatusInstance.data.datasets[0].data = valores;
+                graficoStatusInstance.update('none');
+            } else {
+                graficoStatusInstance = new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                            data: valores,
+                            backgroundColor: cores,
+                            borderWidth: 2,
+                            borderColor: '#0f172a'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: { color: '#cbd5e1', font: { size: 11 } }
+                            }
+                        }
+                    }
+                });
+            }
+        }
+    </script>
+</body>
+</html>
