@@ -9,6 +9,9 @@
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col">
 
+    <!-- Áudio do som de dinheiro -->
+    <audio id="somDinheiro" src="https://www.myinstants.com/media/sounds/cash-register-kaching-sound-effect.mp3" preload="auto"></audio>
+
     <!-- HEADER / TOPO -->
     <header class="bg-slate-900 border-b border-slate-800 p-4 shadow-md">
         <div class="container mx-auto flex justify-between items-center">
@@ -332,6 +335,17 @@
                     if (!intervaloAutoRefresh) {
                         intervaloAutoRefresh = setInterval(carregarPainelCompleto, 30000);
                     }
+
+                    // --- LÓGICA DO SOM DE DINHEIRO ---
+                    let faturamentoAnterior = parseFloat(localStorage.getItem('ultimoFaturamento')) || data.faturamento_total;
+                    if (data.faturamento_total > faturamentoAnterior) {
+                        const audioDinheiro = document.getElementById('somDinheiro');
+                        if (audioDinheiro) {
+                            audioDinheiro.play().catch(e => console.log("Bloqueio de autoplay:", e));
+                        }
+                    }
+                    localStorage.setItem('ultimoFaturamento', data.faturamento_total);
+                    // ---------------------------------
 
                     document.getElementById('cardFaturamento').innerText = `R$ ${data.faturamento_total.toFixed(2).replace('.', ',')}`;
                     document.getElementById('cardCusto').innerText = `R$ ${data.custo_total.toFixed(2).replace('.', ',')}`;
