@@ -330,7 +330,7 @@
                     }
 
                     if (!intervaloAutoRefresh) {
-                        intervaloAutoRefresh = setInterval(carregarPainelCompleto, 1000);
+                        intervaloAutoRefresh = setInterval(carregarPainelCompleto, 30000);
                     }
 
                     document.getElementById('cardFaturamento').innerText = `R$ ${data.faturamento_total.toFixed(2).replace('.', ',')}`;
